@@ -1,8 +1,9 @@
   <?php 
   
+  
   if(isset($_POST['submit'])){ 
       
-    foreach($_POST['quantity'] as $key => $val) { 
+    foreach($_POST['quantity'] as $ksssey => $val) { 
         if($val==0) { 
             unset($_SESSION['cart'][$key]); 
         }else{ 

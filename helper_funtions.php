@@ -124,9 +124,11 @@ function sales_report_from_to($from, $to)
   return $results;
 }
 
+
+
 function purchases_report_from_to($from, $to)
 {
-  $sql = "SELECT * from sale where sale_date between '$from' and '$to'";
+  $sql = "SELECT * from purchase where purchase_date between '$from' and '$to'";
   global $conn;
   $result = mysqli_query($conn,$sql);
   if (!$result) die($conn->error);
@@ -137,6 +139,8 @@ function purchases_report_from_to($from, $to)
   }
   return $results;
 }
+
+
 // only products without quantity
 function list_of_products_only(){
   $sql  ="SELECT * from `product`";

@@ -173,3 +173,12 @@ a{
     background-color: #673AB7;
     color:white;
 }
+
+
+.hidden{
+    display:none;
+}
+
+.unhidden{
+    display:block;
+}
