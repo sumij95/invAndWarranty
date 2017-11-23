@@ -2,6 +2,7 @@
 <?php include_once('layouts/header.php'); ?>
 <?php include_once('layouts/nav.php'); ?>
 <?php
+
 if(isset($_POST['add']))
 {
   $c_name = $_POST['cus_name'];
