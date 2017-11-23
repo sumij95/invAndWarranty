@@ -9,7 +9,6 @@
             $_SESSION['cart'][$key]['quantity']=$val; 
         } 
     } 
-    
 } 
 
 ?> 
