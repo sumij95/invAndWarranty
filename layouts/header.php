@@ -8,11 +8,14 @@
 	<script src="js/script.js"></script>
 </head>
 <body>
-<div class="row">
-	<div class="header-new navbar-top">
-		<a href="http://www.sailorinfotech.com/"><img src="res/sailor.png" height="40px" width="60px" style="background-color: white"></img></a></i>Development of warranty Tracking and Inventory control System
+	<div class="row">
+		<div class="header-new navbar-top">
+			<a href="http://www.sailorinfotech.com/">
+				<img src="res/sailor.png" height="40px" width="60px" style="background-color: white"></img>
+			</a>
+			<i>Development of warranty Tracking and Inventory control System</i>
+		</div>
 	</div>
-</div>
 
 	<div class="row" style="padding: 5px">
 

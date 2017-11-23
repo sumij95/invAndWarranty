@@ -226,4 +226,6 @@ if(isset($_POST['purchases_report']))
 		</div>
 	</div>
 </div>
+<div class="col-md-12">
 <?php include_once('layouts/footer.php'); ?>
+</div>
