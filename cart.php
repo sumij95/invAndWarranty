@@ -3,7 +3,7 @@
   
   if(isset($_POST['submit'])){ 
       
-    foreach($_POST['quantity'] as $ksssey => $val) { 
+    foreach($_POST['quantity'] as $key => $val) { 
         if($val==0) { 
             unset($_SESSION['cart'][$key]); 
         }else{ 
@@ -32,13 +32,13 @@
         $sql="SELECT * FROM product WHERE pro_id IN ("; 
         
         foreach($_SESSION['cart'] as $id => $value) { 
-            $sql.=$id.","; 
+            $sql.=$id.",";
         } 
         global $conn;
         $sql=substr($sql, 0, -1).") "; 
         $query=mysqli_query($conn,$sql); 
         $totalprice=0; 
-        while($row=mysqli_fetch_array($query)){ 
+        while($query && $row=mysqli_fetch_array($query)){ 
             $subtotal=$_SESSION['cart'][$row['pro_id']]['quantity']; 
             $totalprice+=$subtotal; 
             ?> 

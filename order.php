@@ -105,8 +105,9 @@ if(isset($_POST['order_product']) && isset($_SESSION['cart']))
 
           $sql=substr($sql, 0, -1).") ORDER BY name ASC"; 
 global $conn;
-$query=mysqli_query($conn, $sql); 
-while($row=mysqli_fetch_array($query)){ 
+// echo $sql;
+$query = mysqli_query($conn, $sql); 
+while($query &&  $row=mysqli_fetch_array($query)){ 
 
   ?> 
   <p><?php echo $row['name'] ?> x <?php echo $_SESSION['cart'][$row['pro_id']]['quantity'] ?></p> 
