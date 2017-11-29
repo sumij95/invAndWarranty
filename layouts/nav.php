@@ -35,6 +35,7 @@
             echo '<a href="add_employee.php">Add Employee</a>';
           ?>
           <a href="list_customers.php">List of Customers</a>
+          <a href="list_suppliers.php">List of Suppliers</a>
         </div>
       </div>
 

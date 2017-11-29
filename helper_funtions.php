@@ -220,11 +220,13 @@ function get_incremented_id( $old_id, $numeric_len)
 function get_last_entry_primary_key($table_name, $primary_key)
 {
   global $conn;
-  $query = "select $primary_key from $table_name order by $primary_key desc limit 1";
+  $query = sprintf("select `%s` from `%s` order by `%s` desc limit 1", $primary_key, $table_name, $primary_key);
+  // echo "table_name ".$table_name." P Key ".$primary_key.'<br>';
   $result = $conn->query($query);
   if (!$result)die($conn->error);
   $key = mysqli_fetch_array($result);
   $key = $key[$primary_key];
+  // echo "table_name ".$table_name."Key ".$key.'<br>';
 
   return $key;
 }
@@ -292,8 +294,9 @@ function list_of_warranty_id(){
 
 function list_of_suppliers(){
   global $conn;
-  $sql  ="SELECT sup_id,name from supplier";
+  $sql  ="SELECT * from supplier";
   $result = mysqli_query($conn,$sql);
+  if (!$result) die($conn->error);
 
   $results = array();
   while ($row = mysqli_fetch_array($result)) {
@@ -350,6 +353,7 @@ function list_of_customers(){
   global $conn;
   $sql  ="SELECT * from `customer`";
   $result = mysqli_query($conn,$sql);
+  if (!$result) die($conn->error);
 
   $results = array();
   while ($row = mysqli_fetch_array($result)) {
@@ -379,24 +383,24 @@ function list_of_order_ids(){
 
 function insert_into_order($sup_id, $products)
 {
+  $old_id = get_last_entry_primary_key("order", "ord_id");
+  $ord_id = get_incremented_id($old_id, 7);
   global $conn;
-  $sql = "INSERT INTO `order` (`ord_id`,`order_date`, `sup_id`) VALUES (NULL,CURDATE(),$sup_id)";
+  $sql = sprintf("INSERT INTO `order` (`ord_id`,`order_date`, `sup_id`) VALUES ('$ord_id',CURDATE(),'$sup_id')");
+
   $result = mysqli_query($conn, $sql);
   if (!$result) die($conn->error);
 
-  $result = mysqli_insert_id($conn);
-  $order_id = $result;
-  $_SESSION['order_id'] = $order_id;
+  $_SESSION['order_id'] = $ord_id;
   $_SESSION['sup_id'] = $sup_id;
 
   foreach ($products as $p_id=>$val)
   {
     $quantity = $val['quantity'];
 
-// echo $p_id;
-// echo " " ;
 
-    $sql = sprintf("INSERT INTO `ordered_product` (`ord_id`, `pro_id`, `quantity`) VALUES (%d,%d,%d)", $order_id, $p_id, $quantity);
+    $sql = sprintf("INSERT INTO `ordered_product` (`ord_id`, `pro_id`, `quantity`) VALUES ('%s','%s',%d)", $ord_id, $p_id, $quantity);
+
     $result = mysqli_query($conn, $sql);
     if (!$result) die($conn->error);
   }

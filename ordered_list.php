@@ -29,18 +29,23 @@ function printDiv(divName) {
 
 
 <?php
+
+ 
 if(isset($_POST['order_product']) && isset($_SESSION['cart']))
 {
   $str = $_POST['sup_info'];
   $sup_id=  explode(" ",$str);
-  $sup_id = intval($sup_id[0]);;
+  $sup_id = $sup_id[0];
 
 
   insert_into_order($sup_id,$_SESSION['cart']);
-  redirect("ordered_list.php", false); 
-
-  unset($_SESSION['cart']); 
 }
+else 
+    {
+        echo "You didn't ordered any product yet<br>";
+        echo '<a  class="btn btn-info" href="order.php">back to order page</a>';
+        redirect('order.php', true); 
+    }
 ?>
 
 <div class="container">
@@ -63,10 +68,11 @@ if(isset($_POST['order_product']) && isset($_SESSION['cart']))
             $sql="SELECT * FROM product WHERE pro_id IN ("; 
 
             foreach($_SESSION['cart'] as $id => $value) { 
-                $sql.=$id.","; 
+                $sql.="'".$id."',"; 
             } 
             global $conn;
-            $sql=substr($sql, 0, -1).") ORDER BY name ASC"; 
+            $sql=substr($sql, 0, -1).") ORDER BY name ASC";
+
             $query=mysqli_query($conn,$sql); 
             $totalnumber=0; 
             while($row=mysqli_fetch_array($query)){ 
@@ -92,3 +98,8 @@ if(isset($_POST['order_product']) && isset($_SESSION['cart']))
     <button onclick="printDiv('printable')">Print</button>
     </div>
 </div>
+
+
+<?php 
+  unset($_SESSION['cart']); 
+?>

@@ -2,7 +2,7 @@
 
 if(isset($_GET['action']) && $_GET['action']=="add"){ 
 
-    $id=intval($_GET['id']); 
+    $id=$_GET['id']; 
 
     if(isset($_SESSION['cart'][$id])){ 
 
@@ -10,7 +10,7 @@ if(isset($_GET['action']) && $_GET['action']=="add"){
 
     }else{ 
       global $conn;
-      $sql_s="SELECT * FROM product WHERE pro_id={$id}";
+      $sql_s="SELECT * FROM product WHERE pro_id='$id'";
 
       $query_s=mysqli_query($conn,$sql_s); 
       if(mysqli_num_rows($query_s)!=0){ 

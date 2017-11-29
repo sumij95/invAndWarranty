@@ -32,7 +32,7 @@
         $sql="SELECT * FROM product WHERE pro_id IN ("; 
         
         foreach($_SESSION['cart'] as $id => $value) { 
-            $sql.=$id.",";
+            $sql.="'".$id."',";
         } 
         global $conn;
         $sql=substr($sql, 0, -1).") "; 

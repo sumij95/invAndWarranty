@@ -94,21 +94,22 @@ CREATE TABLE `supplier` (
 --
 
 CREATE TABLE `order` (
-  `ord_id` int(11) NOT NULL,
+  `ord_id` varchar(10) NOT NULL PRIMARY KEY,
   `order_date` date NOT NULL,
-  `sup_id` int(11) NOT NULL
+  `sup_id` varchar(7) NOT NULL,
+  FOREIGN Key (sup_id) REFERENCES supplier(sup_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `ordered_product`
 --
-
 CREATE TABLE `ordered_product` (
-  `ord_id` int(11) NOT NULL,
-  `pro_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+  `ord_id` varchar(10) NOT NULL,
+  `pro_id` varchar(15) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  FOREIGN Key (ord_id) REFERENCES `order`(ord_id),
+  FOREIGN KEY (pro_id) REFERENCES product(pro_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
 
 --
 -- Table structure for table `product`
@@ -187,8 +188,9 @@ CREATE TABLE `sale_product` (
 --
 
 CREATE TABLE `stock` (
-  `pro_id` varchar(15) NOT NULL,
-  `quantity` int(11) NOT NULL
+  `pro_id` varchar(15) NOT NULL PRIMARY KEY,
+  `quantity` int(11) NOT NULL,
+  FOREIGN KEY (pro_id) REFERENCES product(pro_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -254,7 +256,7 @@ ALTER TABLE `order`
 
 --
 -- Indexes for table `ordered_product`
---
+--c
 ALTER TABLE `ordered_product`
   ADD KEY `ord_id` (`ord_id`),
   ADD KEY `pro_id` (`pro_id`);
