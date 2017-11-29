@@ -49,7 +49,7 @@ if(isset($_POST['sale']) && isset($_SESSION['cart']))
 {
   $str = $_POST['cus_info'];
   $cus_id=  explode(" ",$str);
-  $cus_id = intval($cus_id[0]);;
+  $cus_id = intval($cus_id[0]);
 $_SESSION['cus_id'] = $cus_id;
 
  insert_into_sale_and_stock($cus_id,$_SESSION['cart']);

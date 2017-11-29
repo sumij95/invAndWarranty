@@ -53,6 +53,8 @@
         <div id="myDropdown" class="dropdown-content">
 
           <a href="add_products.php">Add New Product</a>
+          <a href="add_category.php">Add New Category</a>
+          <a href="add_brand.php">Add New Brand</a>
           <a href="order.php">Place Order</a>
           <a href="stock_products.php">Stock</a>
         </div>

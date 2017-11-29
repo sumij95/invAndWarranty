@@ -49,19 +49,34 @@ function redirect($url, $permanent = false)
 }
 
 
+function get_product_id( $old_id, $cat_id, $bra_id)
+{
+
+  $numeric_part = substr($old_id, 9);
+  $id = filter_var($numeric_part, FILTER_SANITIZE_NUMBER_INT);
+  $new_id = strval($id + 1);
+  $new_id = sprintf('%06d', $new_id);
+  return 'PRO'.$cat_id.$bra_id.$new_id;
+}
 
 function add_new_product($p_name, $p_brand,$p_category,$purchase_price,$sale_price,$warranty_yr)
 {
-  global $conn;
 
-  $query  = sprintf("INSERT INTO product (name, category, brand, purchase_price,sale_price,warranty_yr) VALUES ('%s','%s','%s',%d, %d, %s)", $p_name, $p_category, $p_brand, $purchase_price,$sale_price,$warranty_yr);
+  $old_id =  get_last_entry_primary_key('product', 'pro_id');
+
+  $cat_id = substr($p_category, 3);
+  $bra_id = substr($p_brand, 3);
+
+  $p_id = get_product_id($old_id, $cat_id, $bra_id);
+  // echo "PROID: ". $p_id.'<br>';
+  global $conn;
+  $query  = sprintf("INSERT INTO product (pro_id, name, cat_id, bra_id, purchase_price,sale_price,warranty_yr) VALUES ('%s', '%s','%s','%s',%d, %d, %s)",$p_id, $p_name, $p_category, $p_brand, $purchase_price,$sale_price,$warranty_yr);
+
+  // echo $query;
   $result = $conn->query($query);
   if (!$result) die($conn->error);
-  $result = mysqli_insert_id($conn);
-  if (!$result) die($conn->error);
 
-
-  $query  = sprintf("INSERT INTO `stock` (`pro_id`, `quantity`) VALUES  (%d, %d)", $result,0);
+  $query  = sprintf("INSERT INTO `stock` (`pro_id`, `quantity`) VALUES  ('%s', %d)", $p_id,0);
   $result = $conn->query($query);
   if (!$result) die($conn->error);
   
@@ -74,30 +89,49 @@ function add_new_product($p_name, $p_brand,$p_category,$purchase_price,$sale_pri
 function add_new_supplier($s_name, $s_address,$s_contact,$s_email)
 {
   global $conn;
-  $query  = "SELECT * from supplier";
+  $query = "select sup_id from supplier order by sup_id desc limit 1";
   $result = $conn->query($query);
-  if (!$result) die($conn->error);
-  $rows = $result->num_rows;
+  if (!$result)die($conn->error);
 
-  $new_id = $rows+1;
+  $old_sup_id = mysqli_fetch_array($result);
+  $old_sup_id = $old_sup_id['sup_id'];
+
+  $new_sup_id = get_incremented_id($old_sup_id, 4);
+  $sql = sprintf("INSERT INTO supplier (sup_id,company_name,address,contact_no,email) VALUES ('%s','%s','%s','%s','%s')",$new_sup_id, $s_name, $s_address, $s_contact, $s_email);
+  $result = mysqli_query($conn,$sql);
   
-  $query  = sprintf("INSERT INTO supplier (sup_id,name,address,contact_no,email) VALUES (%d,'%s','%s','%s','%s')",$new_id, $s_name, $s_address, $s_contact, $s_email);
-  $result = $conn->query($query);
-
-  if (!$result) 
-  {
-    die($conn->error);
-    return False;
-  }
-  else 
-  {
-    return True;
-  }
+  if (!$result)die($conn->error);
 }
 
 
-function list_of_products(){
-  $sql  ="SELECT `stock`.`pro_id` as pro_id ,name, category, brand, quantity,purchase_price,sale_price, warranty_yr from product,stock WHERE `stock`.`pro_id`=`product`.`pro_id` ";
+function add_new_category($name)
+{
+
+  global $conn;
+  $query = "select cat_id from product_category order by cat_id desc limit 1";
+  $result = $conn->query($query);
+  if (!$result)die($conn->error);
+  $old_cat_id = mysqli_fetch_array($result);
+  $new_cat_id = get_incremented_id($old_cat_id['cat_id'], 3);
+  $sql = sprintf("INSERT INTO product_category (cat_id,name) VALUES ('%s','%s')",$new_cat_id, $name);
+  $result = mysqli_query($conn,$sql);
+  
+  if (!$result)die($conn->error); 
+}
+function add_new_brand($name)
+{
+  global $conn;
+  $query = "select bra_id from product_brand order by bra_id desc limit 1";
+  $result = $conn->query($query);
+  if (!$result)die($conn->error);
+  $old_bra_id = mysqli_fetch_array($result);
+  $new_bra_id = get_incremented_id($old_bra_id['bra_id'], 3);
+  $sql = sprintf("INSERT INTO product_brand (bra_id,name) VALUES ('%s','%s')",$new_bra_id, $name);
+  $result = mysqli_query($conn,$sql); 
+  if (!$result)die($conn->error); 
+}
+function list_of_products_in_stock(){
+  $sql = 'SELECT product.`pro_id`, product.name, product_category.name as category, product_brand.name as brand, quantity, purchase_price, sale_price, warranty_yr FROM (((`product` INNER JOIN stock on product.pro_id=stock.pro_id) inner join product_category on product.cat_id=product_category.cat_id) INNER JOIN product_brand on product.bra_id=product_brand.bra_id)';
   global $conn;
 
   $result = mysqli_query($conn,$sql);
@@ -171,11 +205,44 @@ function find_product_by_id($id){
 
 
 
+
+function get_incremented_id( $old_id, $numeric_len)
+{
+  $prefix = substr($old_id, 0, 3);
+  $id = filter_var($old_id, FILTER_SANITIZE_NUMBER_INT);
+  $new_id = strval($id + 1);
+  $speci = sprintf("%s%dd", "%0", $numeric_len);
+  $new_id = $prefix.sprintf($speci, $new_id);
+
+  return $new_id;
+}
+
+function get_last_entry_primary_key($table_name, $primary_key)
+{
+  global $conn;
+  $query = "select $primary_key from $table_name order by $primary_key desc limit 1";
+  $result = $conn->query($query);
+  if (!$result)die($conn->error);
+  $key = mysqli_fetch_array($result);
+  $key = $key[$primary_key];
+
+  return $key;
+}
+
 function add_new_customer($c_name, $c_address,$c_contact,$c_email)
 {
   global $conn;
-  $query  = sprintf("INSERT INTO customer (name,address,contact_no,email) VALUES ('%s','%s','%s','%s')",$new_id, $c_name, $c_address, $c_contact, $c_email);
+  $query = "select cus_id from customer order by cus_id desc limit 1";
   $result = $conn->query($query);
+  if (!$result)die($conn->error);
+  
+  $old_cus_id = mysqli_fetch_array($result);
+  $old_cus_id = $old_cus_id['cus_id'];
+
+  $new_cus_id = get_incremented_id($old_cus_id,4);
+  $sql = sprintf("INSERT INTO customer (cus_id,name,address,contact_no,email) VALUES ('%s','%s','%s','%s','%s')",$new_cus_id, $c_name, $c_address, $c_contact, $c_email);
+  $result = mysqli_query($conn,$sql);
+  
   if (!$result)die($conn->error);
 }
 
@@ -184,17 +251,19 @@ function add_new_customer($c_name, $c_address,$c_contact,$c_email)
 function add_new_employee($e_name, $e_address,$e_contact,$e_email)
 {
   global $conn;
-  $query  = "SELECT * from employee";
+  $query = "select emp_id from employee order by emp_id desc limit 1";
   $result = $conn->query($query);
-  if (!$result) die($conn->error);
-  $rows = $result->num_rows;
+  if (!$result)die($conn->error);
 
-  $new_id = $rows+1;
+  $old_emp_id = mysqli_fetch_array($result);
+  $old_emp_id = $old_emp_id['emp_id'];
+
+  $new_emp_id = get_incremented_id($old_emp_id,4);
+  $sql = sprintf("INSERT INTO employee (emp_id,name,address,contact_no,email) VALUES ('%s','%s','%s','%s','%s')",$new_emp_id, $e_name, $e_address, $e_contact, $e_email);
+  echo "$sql";
+  $result = mysqli_query($conn,$sql);
   
-  $query  = sprintf("INSERT INTO employee (emp_id,name,address,contact_no,email) VALUES (%d,'%s','%s','%s','%s')",$new_id, $e_name, $e_address, $e_contact, $e_email);
-  $result = $conn->query($query);
-
-  if (!$result) die($conn->error);
+  if (!$result)die($conn->error);
 
 }
 function list_of_supplier_by_id($id)
@@ -235,7 +304,7 @@ function list_of_suppliers(){
 
 function list_of_latest_products(){
   global $conn;
-  $sql  ="SELECT pro_id, name, brand, sale_price from `product` ORDER BY pro_id DESC LIMIT 10";
+  $sql  ="SELECT pro_id, name, brand, sale_price from `product` ORDER BY pro_id DESC LIMIT 5";
   $result = mysqli_query($conn,$sql);
   if (!$result) die($conn->error);
 
@@ -248,7 +317,7 @@ function list_of_latest_products(){
 function list_of_latest_sales()
 {
   global $conn;
-  $sql  ="SELECT name, sale_date, quantity*sale_price as amount from `sale`, `sale_product`, product WHERE product.pro_id=sale_product.pro_id and sale_product.sal_id=sale.sal_id limit 5";
+  $sql  ="SELECT name, sale_date, quantity*sale_price as amount from `sale`, `sale_product`, product WHERE product.pro_id=sale_product.pro_id and sale_product.sal_id=sale.sal_id  order by sale_date desc limit 5";
   $result = mysqli_query($conn,$sql);
   if (!$result) die($conn->error);
 
@@ -458,18 +527,18 @@ function list_of_ordered_products($ord_id)
 
 function list_of_lowest_quantity_Products()
 {
-$sql  = "SELECT product.pro_id, name, quantity from product,stock where product.pro_id=stock.pro_id ORDER BY quantity asc";
-global $conn;
+  $sql  = "SELECT product.pro_id, name, quantity from product,stock where product.pro_id=stock.pro_id ORDER BY quantity asc";
+  global $conn;
 
-$result = mysqli_query($conn,$sql);
+  $result = mysqli_query($conn,$sql);
 
-if (!$result) die($conn->error);
+  if (!$result) die($conn->error);
 
-$results = array();
-while ($row = mysqli_fetch_array($result)) {
-  $results[] = $row;
-}
-return $results;
+  $results = array();
+  while ($row = mysqli_fetch_array($result)) {
+    $results[] = $row;
+  }
+  return $results;
 }
 
 
@@ -551,9 +620,7 @@ function get_products_by_id($pro_id)
   $results = array();
 
   while ($row = mysqli_fetch_array($result)) 
-  {
-    $results[] = $row;
-  }  
+    $results[] = $row;  
   return $results;
 }
 
@@ -576,6 +643,44 @@ function  update_product_by_id($p_id, $p_name, $p_brand,$p_category, $purchase_p
  if (!$result) die($conn->error);
  redirect('stock_products.php');
 }
+
+
+
+
+
+
+function test_text_input($text)
+{
+  $text = trim($text);
+
+  preg_match('/^[A-Za-z\W]+$/', $text , $matches, PREG_OFFSET_CAPTURE);
+  
+  if(empty($matches))$text = "";
+  
+  return $text;
+}
+
+
+
+function list_of_data($table_name)
+{
+  global $conn;
+  $query = "select * from $table_name";
+  $result = mysqli_query($conn, $query);
+  if (!$result) die($conn->error);
+
+
+  $results = array();
+  while ($row = mysqli_fetch_array($result)) 
+    $results[] = $row;  
+  return $results;
+
+}
+
+
+
+
+
 
 ?>
 

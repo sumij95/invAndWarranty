@@ -10,11 +10,19 @@ if(isset($_POST['add_product']))
   $p_brand = $_POST['product_brand'];
   $p_category = $_POST['product_category'];
   $purchase_price = $_POST['purchase_price'];
-    $sale_price = $_POST['sale_price'];
+  $sale_price = $_POST['sale_price'];
   $warranty_yr = $_POST['warranty_yr'];
   
+
+  $p_brand=  explode(" ",$p_brand);
+  $p_brand = $p_brand[0];
+
+  $p_category=  explode(" ",$p_category);
+  $p_category = $p_category[0];
+
   add_new_product($p_name, $p_brand,$p_category, $purchase_price,$sale_price,$warranty_yr);
   echo "<script>alert (\"Product added\")</script>";
+  echo "hello";
 }
 ?>
 
@@ -44,40 +52,54 @@ if(isset($_POST['add_product']))
            <div class="form-group">
             <div class="row">
               <div class="col-md-6">
-                <br>Select Product Brand</br>
+                <br>Select Product Brand<br>
                 <select class="form-control" name="product_brand">
-                  <option >LG</option>
-                  <option >Sony</option>
+                  <?php 
+                  $brands = list_of_data('product_brand');
+                  foreach ($brands as $brand) {
+                    echo '<option >';
+                    echo $brand['bra_id'].' '.$brand['name'];
+                    echo '</option>';
+                  } 
+                  ?>
                 </select>
               </div>
-
-
               <div class="col-md-6">
-                <br>Select Product Category</br>
+                <br>Select Product Category<br>
                 <select class="form-control" name="product_category">
-                  <option >TV</option>
-                  <option >Air Conditioner</option>
+                  <?php 
+                  $categories = list_of_data('product_category');
+                  foreach ($categories as $category) {
+                    echo '<option >';
+                    echo $category['cat_id'].' '.$category['name'];
+                    echo '</option>';
+                  } 
+                  ?>
                 </select>
               </div>
             </div>
           </div>
           <div class="form-group">
-            <div class="col-md-4">
-              <br>Unit Purchase Price</br>
-              <input type="text" name="purchase_price" size="10" value="0"/>
+            <div class="row">
+             <div class="col-sm-4">
+              <br>Unit Purchase Price<br>
+              <input type="text" name="purchase_price" class="form-control" size="10" value="0"/>
             </div>
-            <div class="col-md-4">
-              <br>Unit Sale Price</br>
-              <input type="text" name="sale_price" size="10" value="0"/>
+            <div class="col-sm-4">
+              <br>Unit Sale Price<br>
+              <input type="text" name="sale_price" class="form-control" size="10" value="0"/>
             </div>
-            <div class="col-md-4">
-              <br>Warranty (year)</br>
-              <input type="text" name="warranty_yr" size="10" value="1"/>
+            <div class="col-sm-4">
+              <br>Warranty (year)<br>
+              <input type="text" name="warranty_yr" class="form-control" size="10" value="1"/>
 
             </div>
+
           </div>
-          
-          <button type="submit" name="add_product" class="btn btn-danger">Add product</button>
+        </div>
+
+          <button type="submit" name="add_product" class="btn btn-success pull-right">Add product</button>
+
         </form>
       </div>
     </div>

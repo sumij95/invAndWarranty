@@ -88,7 +88,7 @@ else
 				<div class="panel-heading">
 					<strong>
 						<span class="glyphicon glyphicon-th"></span>
-						<span>Recently Added Products</span>
+						<span>Latest Added Products</span>
 					</strong>
 				</div>
 				<div class="panel-body">

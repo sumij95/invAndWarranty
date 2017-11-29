@@ -9,7 +9,6 @@ if(isset($_POST['add']))
   $c_contact = $_POST['contact'];
   $c_email = $_POST['email'];
   add_new_customer($c_name, $c_address,$c_contact,$c_email);
-  redirect('add_customer.php');
 }
 ?>
 
@@ -17,7 +16,6 @@ if(isset($_POST['add']))
 
 <div class="col-md-10">
   <div class="col-md-8">
-
   <div class="row">
     <div class="panel panel-default">
       <div class="panel-heading">

@@ -1,5 +1,5 @@
  <?php 
-
+if(!isset($_SESSION))session_start();
  if(isset($_POST['submit'])){ 
 
     foreach($_POST['quantity'] as $key => $val) { 
@@ -9,10 +9,14 @@
             $_SESSION['cart'][$key]['quantity']=$val; 
         } 
     } 
-
 } 
 
 ?> 
+
+
+<?php include_once('layouts/header.php'); ?>
+<?php include_once('layouts/nav.php'); ?>
+<?php include_once('load.php'); ?>
 
 <script>
 function printDiv(divName) {
@@ -23,6 +27,21 @@ function printDiv(divName) {
     document.body.innerHTML = originalContents;
 }</script>
 
+
+<?php
+if(isset($_POST['order_product']) && isset($_SESSION['cart']))
+{
+  $str = $_POST['sup_info'];
+  $sup_id=  explode(" ",$str);
+  $sup_id = intval($sup_id[0]);;
+
+
+  insert_into_order($sup_id,$_SESSION['cart']);
+  redirect("ordered_list.php", false); 
+
+  unset($_SESSION['cart']); 
+}
+?>
 
 <div class="container">
     <div class="col-md-9">

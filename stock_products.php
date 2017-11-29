@@ -1,5 +1,5 @@
 <?php include_once('load.php'); ?>
-<?php $products = list_of_products();?>
+<?php $products = list_of_products_in_stock();?>
 
 <?php include_once('layouts/header.php'); ?>
 <?php include_once('layouts/nav.php'); ?>

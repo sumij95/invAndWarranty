@@ -5,17 +5,13 @@ if(isset($_POST['add']))
 {
   $s_name = $_POST['sup_name'];
   $s_address = $_POST['address'];
-  $s_contact = $_POST['contact'];
-  $s_email = $_POST['email'];
-
+  $s_contact = ($_POST['contact']);
+  $s_email = ($_POST['email']);
 
 
   if(add_new_supplier($s_name, $s_address,$s_contact,$s_email))
-  { 
     echo "<script>alert (\"New Supplier Successfully added\")</script>";
-    redirect('add_supplier.php');
-  }
-  else echo "error in adding product";
+  
 }
 ?>
 
@@ -23,7 +19,7 @@ if(isset($_POST['add']))
 
 <?php include_once('layouts/header.php'); ?>
 <?php include_once('layouts/nav.php'); ?>
-<div class="col-md-9">
+<div class="col-md-10">
   <div class="row">
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -34,7 +30,7 @@ if(isset($_POST['add']))
       </div>
       <div class="panel-body">
        <div class="col-md-12">
-       <form method="post" action="add_supplier.php" class="clearfix">
+         <form method="post" action="add_supplier.php" class="clearfix">
           <div class="form-group">
             <div class="input-group">
               <span class="input-group-addon">
