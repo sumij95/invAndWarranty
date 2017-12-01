@@ -27,15 +27,15 @@
           <a href="check_warranty.php">Check warranty</a>
           <a href="add_supplier.php">Add Supplier</a>
           <a href="add_customer.php">Add Customer</a>
-          
+          <a href="list_suppliers.php">List of Suppliers</a>
+          <a href="list_customers.php">List of Customers</a>
+
           <!-- Admin role -->
           <?php
 
           if(isset($_SESSION['username']) && $_SESSION['username']=='admin')
             echo '<a href="add_employee.php">Add Employee</a>';
           ?>
-          <a href="list_customers.php">List of Customers</a>
-          <a href="list_suppliers.php">List of Suppliers</a>
         </div>
       </div>
 

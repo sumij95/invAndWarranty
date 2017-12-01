@@ -270,7 +270,7 @@ function add_new_employee($e_name, $e_address,$e_contact,$e_email)
 }
 function list_of_supplier_by_id($id)
 {
- $sql  ="SELECT `supplier`.`name` as sup_name FROM `order`,`supplier` WHERE `order`.`ord_id`=$id AND `supplier`.`sup_id`=`order`.`sup_id`";
+ $sql  ="SELECT `supplier`.`company_name` as sup_name FROM `order`,`supplier` WHERE `order`.`ord_id`=$id AND `supplier`.`sup_id`=`order`.`sup_id`";
  global $conn;
 
  $result = mysqli_query($conn,$sql);
@@ -410,19 +410,19 @@ function insert_into_order($sup_id, $products)
 function insert_into_sale_and_stock($cus_id, $products)
 {
   global $conn;
-  $sql = "INSERT INTO `sale` (`cus_id`, `sale_date`) VALUES ($cus_id, CURDATE())";
+  $key = get_last_entry_primary_key('sale', 'sal_id');
+  $new_id = get_incremented_id($key,7);
+  $sql = "INSERT INTO `sale` (`sal_id`,`cus_id`, `sale_date`) VALUES ('$new_id', '$cus_id', CURDATE())";
   $result = mysqli_query($conn, $sql);
   if (!$result) die($conn->error);
 
-  $result = mysqli_insert_id($conn);
-  $sal_id = $result;
-  $_SESSION['sal_id'] = $sal_id;
+  $_SESSION['sal_id'] = $sal_id = $new_id;
 
   $total = 0;
   foreach ($products as $p_id=>$val)
   {
     // get product sale price
-    $sql = "SELECT sale_price from `product` WHERE $p_id = `pro_id`";
+    $sql = "SELECT sale_price from `product` WHERE '$p_id' = `pro_id`";
     $result = mysqli_query($conn, $sql);
     if (!$result) die($conn->error);
     $quantity = $val['quantity'];
@@ -435,32 +435,41 @@ function insert_into_sale_and_stock($cus_id, $products)
     else echo "product NOT Found";
 
     // echo $p_id." ".$quantity."<br/>";
-    $sql = sprintf("INSERT INTO `sale_product` (`sal_id`, `pro_id`, `quantity`) VALUES (%d,%d,%d)", $sal_id, $p_id, $quantity);
+    $sql = sprintf("INSERT INTO `sale_product` (`sal_id`, `pro_id`, `quantity`) VALUES ('%s','%s',%d)", $sal_id, $p_id, $quantity);
     $result = mysqli_query($conn, $sql);
     if (!$result) die($conn->error);
 
-    $sql  = "UPDATE `stock` SET `quantity`=(`quantity` - $quantity) WHERE $p_id = pro_id";
+    $sql  = "UPDATE `stock` SET `quantity`=(`quantity` - $quantity) WHERE '$p_id' = pro_id";
     $result = mysqli_query($conn, $sql);
     if (!$result) die($conn->error);
   }
-//  echo "Total: ".$total;
-  $typ = "Sale";
-  $sql = sprintf("INSERT INTO `transactions` (`type`, `sal_id`, `amount`) VALUES ('sale',%d, %d)", $sal_id, $total);
-  $result = mysqli_query($conn, $sql);
-  if (!$result) die($conn->error);
+// //  echo "Total: ".$total;
+//   $typ = "Sale";
+//   $sql = sprintf("INSERT INTO `transactions` (`type`, `sal_id`, `amount`) VALUES ('sale',%d, %d)", $sal_id, $total);
+//   $result = mysqli_query($conn, $sql);
+//   if (!$result) die($conn->error);
 
 
 }
+
+
+
 function insert_into_warranty($products)
 {
   global $conn;
-  foreach ($products as $p_id=>$val)
+  foreach ($products as $p_id => $val)
   {
+
+    $key = get_last_entry_primary_key('warranty', 'war_id');
+    $war_id = get_incremented_id($key, 8);
     $quantity = $val['quantity'];
 
     for ($i = 1; $i<=$quantity; $i++)
     {
-      $sql = sprintf("INSERT INTO `warranty` (`sal_id`, `pro_id`) VALUES (%d,%d)", $_SESSION['sal_id'], $p_id);
+      $key = get_last_entry_primary_key('warranty', 'war_id');
+      $war_id = get_incremented_id($key, 8);
+
+      $sql = sprintf("INSERT INTO `warranty` (`war_id`,`sal_id`, `pro_id`) VALUES ('%s', '%s','%s')",$war_id, $_SESSION['sal_id'], $p_id);
       $result = mysqli_query($conn, $sql);
       if (!$result) die($conn->error);
     }
@@ -470,24 +479,34 @@ function insert_into_warranty($products)
 function insert_into_purchase($ord_id)
 {
   global $conn;
-  $sql = "INSERT INTO `purchase` (`ord_id`, `purchase_date`) VALUES ($ord_id, CURDATE())";
+
+  $key = get_last_entry_primary_key('purchase', 'pur_id');
+  $new_id = get_incremented_id($key, 7);
+
+// sdferf
+
+  $sql = "INSERT INTO `purchase` (`pur_id`, `ord_id`, `purchase_date`) VALUES ('$new_id','$ord_id', CURDATE())";
   $result = mysqli_query($conn, $sql);
   if (!$result) die($conn->error);
 
-  $result = mysqli_insert_id($conn);
-  $pur_id = $result;
-  $_SESSION['pur_id'] = $pur_id;
+  $_SESSION['pur_id'] = $pur_id = $new_id;
 
 
-  $sql  = "SELECT `product`.`pro_id` as pro_id, quantity FROM `ordered_product`, `product` where `ordered_product`.`ord_id`=$ord_id and `ordered_product`.`pro_id`=`product`.`pro_id`";
+  $sql  = "SELECT `product`.`pro_id` as pro_id, quantity FROM `ordered_product`, `product` where `ordered_product`.`ord_id`='$ord_id' and `ordered_product`.`pro_id`=`product`.`pro_id`";
+  
+
+
   $result_ = mysqli_query($conn,$sql);
-  if (!$result) die($conn->error);
+  if (!$result_) die($conn->error);
   $total = 0;
 
   while ($row = mysqli_fetch_array($result_)) 
   {
+
   // get product purchase price
-    $sql = sprintf("SELECT purchase_price from `product` WHERE %d = `pro_id`",$row['pro_id']);
+    $sql = sprintf("SELECT purchase_price from `product` WHERE '%s' = `pro_id`", $row['pro_id']);
+    
+
     $result = mysqli_query($conn, $sql);
     if (!$result) die($conn->error);
 
@@ -497,22 +516,24 @@ function insert_into_purchase($ord_id)
       }
     }
     else echo "product NOT Found";  
-    $sql = sprintf("INSERT INTO `purchased_product` (`pur_id`, `pro_id`, `quantity`) VALUES (%d,%d,%d)", $pur_id, $row['pro_id'], $row['quantity']);
+    $sql = sprintf("INSERT INTO `purchased_product` (`pur_id`, `pro_id`, `quantity`) VALUES ('%s','%s',%d)", $pur_id, $row['pro_id'], $row['quantity']);
+
+
     $r = mysqli_query($conn,$sql);
     if (!$r) die($conn->error);
   }
 
-  $typ = "Purchase";
-  $sql = sprintf("INSERT INTO `transactions` (`type`, `pur_id`, `amount`) VALUES ('%s',%d, %d)",$typ, $pur_id, $total);
-  $result = mysqli_query($conn, $sql);
-  if (!$result) die($conn->error);
+  // $typ = "Purchase";
+  // $sql = sprintf("INSERT INTO `transactions` (`type`, `pur_id`, `amount`) VALUES ('%s',%d, %d)",$typ, $pur_id, $total);
+  // $result = mysqli_query($conn, $sql);
+  // if (!$result) die($conn->error);
 
 }
 function list_of_ordered_products($ord_id)
 {
 
 
-  $sql  = "SELECT `product`.`pro_id`, `name`, `purchase_price`, `sale_price`, quantity FROM `ordered_product`, `product` where `ordered_product`.`ord_id`=$ord_id and `ordered_product`.`pro_id`=`product`.`pro_id`";
+  $sql  = "SELECT `product`.`pro_id`, `name`, `purchase_price`, `sale_price`, quantity FROM `ordered_product`, `product` where `ordered_product`.`ord_id`='$ord_id' and `ordered_product`.`pro_id`=`product`.`pro_id`";
   global $conn;
 
   $result = mysqli_query($conn,$sql);
@@ -550,16 +571,15 @@ function add_to_stock($ord_id)
 {
   global $conn;
 
-  $sql  = "SELECT `product`.`pro_id` as pro_id, quantity FROM `ordered_product`, `product` where `ordered_product`.`ord_id`=$ord_id and `ordered_product`.`pro_id`=`product`.`pro_id`";
+  $sql  = "SELECT `product`.`pro_id` as pro_id, quantity FROM `ordered_product`, `product` where `ordered_product`.`ord_id`='$ord_id' and `ordered_product`.`pro_id`=`product`.`pro_id`";
   $result = mysqli_query($conn,$sql);
   if (!$result) die($conn->error);
 
   while ($row = mysqli_fetch_array($result)) {
-    //echo $row['pro_id'] ;
-    //echo $row['quantity'];
-    $sql  = "UPDATE `stock` SET `quantity`=(`quantity` + $row[quantity]) WHERE $row[pro_id] = pro_id";
+    $sql  = "UPDATE `stock` SET `quantity`=(`quantity` + $row[quantity]) WHERE '$row[pro_id]' = pro_id";
     $r = mysqli_query($conn,$sql);
     if (!$r) die($conn->error);
+
   }
 }
 

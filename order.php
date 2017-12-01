@@ -96,6 +96,7 @@ $_SESSION['order_products'] = list_of_products_in_stock();
 
     $sql=substr($sql, 0, -1).") ORDER BY name ASC"; 
     global $conn;
+    
     $query = mysqli_query($conn, $sql); 
 
     while($query &&  $row=mysqli_fetch_array($query)){ 

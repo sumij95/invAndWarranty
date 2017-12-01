@@ -2,7 +2,7 @@
 
 if(isset($_GET['action']) && $_GET['action']=="add"){ 
 
-    $id=intval($_GET['id']); 
+    $id=($_GET['id']); 
 
     if(isset($_SESSION['cart'][$id]))
     { 
@@ -13,7 +13,7 @@ if(isset($_GET['action']) && $_GET['action']=="add"){
     else
     { 
       global $conn;
-      $sql_s="SELECT * FROM product WHERE pro_id={$id}";
+      $sql_s="SELECT * FROM product WHERE pro_id='$id'";
 
       $query_s=mysqli_query($conn,$sql_s); 
       if(mysqli_num_rows($query_s)!=0)
@@ -73,7 +73,7 @@ if(isset($_GET['action']) && $_GET['action']=="add"){
                     <td><?php echo $row['name'] ?></td> 
                     <td><?php echo $row['quantity'] ?></td> 
                     <td><?php echo $row['sale_price'] ?></td> 
-                    <td><a  class="btn btn-success" href="sale.php?page=products&action=add&id=<?php echo $row['pro_id'] ?>">Add to order list</a></td> 
+                    <td><a  class="btn btn-success" href="sale.php?page=sale_products&action=add&id=<?php echo $row['pro_id'] ?>">Add to order list</a></td> 
                 </tr> 
                 <?php 
 

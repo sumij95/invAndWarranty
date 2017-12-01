@@ -13,7 +13,7 @@
 	
 	?>
 
-	<?php $products = list_of_ordered_products(intval($_GET['q']));?>
+	<?php $products = list_of_ordered_products(($_GET['q']));?>
 
 	<div class="panel-body">
 		<table class="table table-bordered">

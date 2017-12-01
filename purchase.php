@@ -16,11 +16,7 @@ if(isset($_POST['purchase_product']))
 
 
   if(isset($_SESSION['cart'])) unset($_SESSION['cart']);
-  
-
   if(isset($_SESSION['products'])) unset($_SESSION['products']);
-  
-
   if(isset($_SESSION['pro_quantity'])) unset($_SESSION['pro_quantity']);
   
 }
@@ -61,7 +57,7 @@ if(isset($_POST['purchase_product']))
 </script>
 
 
-<div class="col-md-9">
+<div class="col-md-10">
   <div class="row">
 
     <div class="panel panel-default">
@@ -82,8 +78,6 @@ if(isset($_POST['purchase_product']))
               <?php foreach ($order_ids as $order_id):?>
                 <option ><?php echo ($order_id['ord_id']);?></option>
               <?php endforeach; ?>
-
-
             </select>
             <div id="sup_div"></div>
           </div>
