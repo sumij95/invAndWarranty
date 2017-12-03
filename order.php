@@ -47,11 +47,6 @@ $_SESSION['order_products'] = list_of_products_in_stock();
             <div class="col-sm-8">
               <strong><h4>Supplier Company Name</h4></strong>
             </div>
-            <div class="col-sm-4">
-              <a href="add_customer.php">
-                <button   class="btn btn-info">Add New Supplier</button>
-              </a>
-            </div>
 
           </div>
 
@@ -64,7 +59,7 @@ $_SESSION['order_products'] = list_of_products_in_stock();
                echo '<option >';
                echo ($supplier['sup_id'].' -'.$supplier['company_name']);
                echo '</option>';
-              }
+             }
              ?> 
            </select>
          </div>
@@ -106,8 +101,7 @@ $_SESSION['order_products'] = list_of_products_in_stock();
       <?php 
 
     } 
-    ?> 
-    <hr/> 
+    ?>  
     <a class = "btn  btn-primary" href="order.php?page=cart">Go to order list</a> 
     <?php 
 
@@ -122,5 +116,4 @@ $_SESSION['order_products'] = list_of_products_in_stock();
 
 </div>
 </div>
-</div>
-</div>
+<?php include_once('layouts/footer.php'); ?>

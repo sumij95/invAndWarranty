@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
@@ -15,7 +14,6 @@
     transform: translate(-50%, -50%);
   }
   .page-bg {
-    background: url('http://www.planwallpaper.com/static/images/general-night-golden-gate-bridge-hd-wallpapers-golden-gate-bridge-wallpaper.jpg');
     -webkit-filter: blur(10px);
     -moz-filter: blur(5px);
     -o-filter: blur(5px);
@@ -61,11 +59,9 @@
 
     <div class="col-sm-4" style="align-self: center;">
       <form class="form-signin" method="post" action="auth.php">
-
-        <!-- <h2 class="form-signin-heading">Sign in</h2> -->
         <input type="text" class="form-control" name="username" placeholder="Username" required="" autofocus=""  />
         <input type="password" class="form-control" name="password" placeholder="Password" required=""/>
-        <select class="form-control">
+        <select class="form-control" name="role">
           <option>Admin</option>
           <option>Employee</option>
         </select>    

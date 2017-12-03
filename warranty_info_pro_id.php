@@ -18,7 +18,7 @@ $_infos = get_products_by_id($_SESSION['war_pro_id']);
 
 <div class="container">
 	<div id="printable">
-		<div class="col-md-10">
+		<div class="col-md-12">
 			<p><?php echo "Warranty for product ID: <b>".$_SESSION['war_pro_id']."</b>" ?></p>
 			<table class="table "> 
 				<thead class="thead-inverse">

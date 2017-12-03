@@ -4,28 +4,13 @@
 <?php $suppliers = list_of_suppliers();?>
 <?php $order_ids = list_of_order_ids();?>
 
-
-<?php
-if(isset($_POST['purchase_product']))
-{
-  $ord_id = $_POST['ord_id'];
-  add_to_stock($ord_id);
-  insert_into_purchase($ord_id);
-  // reset cart and produtcs 
-
-
-
-  if(isset($_SESSION['cart'])) unset($_SESSION['cart']);
-  if(isset($_SESSION['products'])) unset($_SESSION['products']);
-  if(isset($_SESSION['pro_quantity'])) unset($_SESSION['pro_quantity']);
-  
-}
-?>
-
-
-
 <script>
   function show_supplier(str) {
+
+    var x = document.getElementById("purchase_btn");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } 
 
     if (str == "") 
     {
@@ -70,7 +55,7 @@ if(isset($_POST['purchase_product']))
       <div class="panel-body">
 
        <div class="col-md-8">
-        <form method="post" action="purchase.php" class="clearfix">
+        <form method="post" action="purchased_list.php" class="clearfix">
           <div class="form-group">
             <br>Order ID</br>
             <select class="form-control" name="ord_id" onchange="show_supplier(this.value)" >
@@ -82,7 +67,7 @@ if(isset($_POST['purchase_product']))
             <div id="sup_div"></div>
           </div>
 
-          <button type="submit" name="purchase_product" class="btn btn-danger">purchase products</button>
+          <button id="purchase_btn" type="submit" name="purchase_product" class="btn btn-danger" style="display: none;">purchase products</button>
         </form>
       </div>
     </div>

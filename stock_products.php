@@ -10,9 +10,9 @@
    <div class="col-md-12">
     <div class="panel panel-default">
       <div class="panel-heading clearfix">
-       <div class="pull-right">
-         <a href="add_products.php" class="btn btn-primary">Add New</a>
-       </div>
+        <strong>
+<span>Product information and stock status</span>
+     </strong>
      </div>
      <div class="panel-body">
       <table class="table table-bordered">

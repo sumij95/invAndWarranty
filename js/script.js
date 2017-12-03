@@ -1,5 +1,3 @@
-<script>
-
 function printDiv(divName) 
 {
   var printContents = document.getElementById(divName).innerHTML;
@@ -8,10 +6,7 @@ function printDiv(divName)
   window.print();
   document.body.innerHTML = originalContents;
 }
-</script>
-<script
-/* When the user clicks on the button, 
-toggle between hiding and showing the dropdown content */
+
 function myFunction() {
   document.getElementById("myDropdown").classList.toggle("show");
 }
@@ -31,7 +26,4 @@ window.onclick = function(event) {
   }
 }
 
-jQuery('#sup_info').load('session_write.php?session_name=new_value');
-
-
-</script>
+//jQuery('#sup_info').load('session_write.php?session_name=new_value');

@@ -2,7 +2,20 @@
 
 $errors = array();
 
-function authenticate($username, $password)
+function sale_report_all_products()
+{
+  $query = "SELECT Distinct product.pro_id, product.name as p_name, quantity, sale.sal_id, sale_date, customer.name as c_name from product, customer, sale, sale_product";
+
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+  $results = array();
+  while ($row = mysqli_fetch_array($result)) 
+    $results[] = $row;
+  return $results;
+}
+
+function authenticate($username, $password, $role)
 {
   global $conn;
   $query  = sprintf("SELECT * FROM `authentication` WHERE user_name = '%s' and password = '%s' LIMIT 1", $username, $password);
@@ -10,14 +23,23 @@ function authenticate($username, $password)
   if (!$result) die($conn->error);
   $rows = $result->num_rows;
 
+
+// print_r($rows);
+// echo " user: ".$username;
+// echo " Pass".$password;
+// echo " Role".$role;
   if($rows == 1)
   {
-    return True;
-  }
-  else 
-  {
-    return False;
-  }
+    if($username == 'admin')
+    {
+     if($role =='Admin')return True;
+     else return False;
+   }
+
+   else if($role=='Employee')return True;
+   else return false;
+ }
+ else return False;
 }
 
 function remove_junk($str){
@@ -270,7 +292,7 @@ function add_new_employee($e_name, $e_address,$e_contact,$e_email)
 }
 function list_of_supplier_by_id($id)
 {
- $sql  ="SELECT `supplier`.`company_name` as sup_name FROM `order`,`supplier` WHERE `order`.`ord_id`=$id AND `supplier`.`sup_id`=`order`.`sup_id`";
+ $sql  ="SELECT `supplier`.`company_name` as sup_name FROM `order`,`supplier` WHERE `order`.`ord_id`='$id' AND `supplier`.`sup_id`=`order`.`sup_id`";
  global $conn;
 
  $result = mysqli_query($conn,$sql);
@@ -307,7 +329,7 @@ function list_of_suppliers(){
 
 function list_of_latest_products(){
   global $conn;
-  $sql  ="SELECT pro_id, name, brand, sale_price from `product` ORDER BY pro_id DESC LIMIT 5";
+  $sql  ="SELECT pro_id, p_name, b_name, sale_price from `product_category_brand` ORDER BY pro_id DESC LIMIT 5";
   $result = mysqli_query($conn,$sql);
   if (!$result) die($conn->error);
 
@@ -588,13 +610,13 @@ function remaing_days($war_id)
 {
   global $conn;
 
-  $sql  = "SELECT warranty_yr FROM `warranty`, `product` where `warranty`.`war_id`= $war_id and `warranty`.`pro_id`=`product`.`pro_id`";
+  $sql  = "SELECT warranty_yr FROM `warranty`, `product` where `warranty`.`war_id`= '$war_id' and `warranty`.`pro_id`=`product`.`pro_id`";
   $result = mysqli_query($conn,$sql);
   if (!$result) die($conn->error);
   while ($row = mysqli_fetch_array($result)) {
     $warranty_yr = $row['warranty_yr'];
   }
-  $sql  = "SELECT sale_date FROM `warranty`, `sale` where `warranty`.`war_id`= $war_id and `warranty`.`sal_id`=`sale`.`sal_id`";
+  $sql  = "SELECT sale_date FROM `warranty`, `sale` where `warranty`.`war_id`= '$war_id' and `warranty`.`sal_id`=`sale`.`sal_id`";
   $result = mysqli_query($conn,$sql);
   if (!$result) die($conn->error);
   while ($row = mysqli_fetch_array($result)) {
@@ -623,7 +645,7 @@ function days_difference($sale_date, $warranty_yr)
 
 function get_warranty_info($war_id)
 {
-  $query= "SELECT name, sale_date, `warranty`.`sal_id` as sal_id, `warranty_yr` FROM warranty, sale, sale_product,product WHERE `warranty`.`war_id`= $war_id and `warranty`.`sal_id` = `sale`.`sal_id` and `sale_product`.`sal_id` = `sale`.`sal_id` and `product`.`pro_id`=`sale_product`.`pro_id`";
+  $query= "SELECT name, sale_date, `warranty`.`sal_id` as sal_id, `warranty_yr` FROM warranty, sale, sale_product,product WHERE `warranty`.`war_id`= '$war_id' and `warranty`.`sal_id` = `sale`.`sal_id` and `sale_product`.`sal_id` = `sale`.`sal_id` and `product`.`pro_id`=`sale_product`.`pro_id`";
   global $conn;
   $result = mysqli_query($conn,$query);
   if (!$result) die($conn->error);
@@ -637,7 +659,7 @@ function get_products_by_id($pro_id)
 
 {
   global $conn;
-  $query = "SELECT sale_product.pro_id, product.name, warranty_yr, sale_date, sale.sal_id, war_id from warranty, sale_product, sale, product where `sale_product`.`pro_id` = $pro_id and `sale_product`.`pro_id`= `product`.`pro_id` and warranty.pro_id=$pro_id and warranty.sal_id=sale_product.sal_id and sale.sal_id=sale_product.sal_id";
+  $query = "SELECT sale_product.pro_id, product.name, warranty_yr, sale_date, sale.sal_id, war_id from warranty, sale_product, sale, product where `sale_product`.`pro_id` = '$pro_id' and `sale_product`.`pro_id`= `product`.`pro_id` and warranty.pro_id='$pro_id' and warranty.sal_id=sale_product.sal_id and sale.sal_id=sale_product.sal_id";
   $result = mysqli_query($conn,$query);
   if (!$result) die($conn->error);
 
@@ -703,9 +725,261 @@ function list_of_data($table_name)
 
 
 
+function generate_report($table_name, $from, $to)
+{
+  $date_field_name = $table_name."_date";
+  $sql = "SELECT * from `$table_name` where $date_field_name between '$from' and '$to'";
+  global $conn;
+  $result = mysqli_query($conn,$sql);
+  if (!$result) die($conn->error);
+
+  $results = array();
+  while ($row = mysqli_fetch_array($result)) {
+    $results[] = $row;
+  }
+  return $results;
+}
+
+
+function get_profit($sal_id)
+{
+  $profit = 0;
+  global $conn;
+
+  $query = "SELECT pro_id, quantity from sale_product WHERE sal_id='$sal_id'";
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+
+  $products = array();
+  while ($row = mysqli_fetch_array($result)) {
+    $products[] = $row;
+  }
+  foreach ($products as $product) {
+    $pro_id = $product['pro_id'];  
+    $query = "SELECT purchase_price, sale_price from product WHERE pro_id='$pro_id'";
+    $result = mysqli_query($conn, $query);
+    if (!$result) die($conn->error);
+    $prices = mysqli_fetch_array($result);
+    $profit = $profit + ($prices['sale_price'] - $prices['purchase_price'])* $product['quantity'];
+  }
+
+  return $profit;
+}
+
+function get_customer_name($cus_id)
+{
+  $query = "SELECT `name` FROM `customer` WHERE cus_id = '$cus_id' LIMIT 1";
+
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+
+  $name = mysqli_fetch_array($result);
+  return $name['name'];
+  
+
+}
+
+function get_supplier_company_name($sup_id)
+{
+  $query = "SELECT `company_name` FROM `supplier` WHERE sup_id = '$sup_id' LIMIT 1";
+
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+
+  $name = mysqli_fetch_array($result);
+  return $name['company_name'];
+  
+
+}
 
 
 
+function get_quantity_by_sale_id($sal_id)
+{
+  $query = "SELECT sum(quantity) as total from sale_product WHERE sal_id='$sal_id'";
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+  $total = mysqli_fetch_array($result);
+  return $total['total'];
+}
+
+function get_quantity_by_order_id($ord_id)
+{
+  $query = "SELECT sum(quantity) as total from ordered_product WHERE ord_id='$ord_id'";
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+  $total = mysqli_fetch_array($result);
+  return $total['total'];
+}
+
+function sale_report($results)
+{
+  $info = array();
+  foreach ($results as $result) {
+    $row = array();
+    $row[] = $result['sal_id'];
+    $row[] = $result['sale_date'];
+    $row[] = get_customer_name($result['cus_id']);    
+    $row[] = get_quantity_by_sale_id($result['sal_id']);    
+    $row[] = get_profit($result['sal_id']);    
+    $info[] = $row;
+  }
+  return $info;
+}
+
+
+function order_report($results)
+{
+ $info = array();
+ foreach ($results as $result) 
+ {
+  $row = array();
+  $row[] = $result['ord_id'];
+  $row[] = $result['order_date'];
+  $row[] = get_supplier_company_name($result['sup_id']);    
+  $row[] = get_quantity_by_order_id($result['ord_id']);    
+  $info[] = $row;
+}
+return $info; 
+}
+
+
+function get_supplier_company_name_by_order_id($ord_id)
+{
+  $query = "SELECT `sup_id` FROM `order` WHERE ord_id = '$ord_id' LIMIT 1";
+
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+  $sup_id = mysqli_fetch_array($result);
+
+  return get_supplier_company_name($sup_id['sup_id']);
+}
+
+
+function purchase_report($results)
+{
+ $info = array();
+ foreach ($results as $result) {
+  $row = array();
+  $row[] = $result['pur_id'];
+  $row[] = $result['purchase_date'];
+  $row[] = get_supplier_company_name_by_order_id($result['ord_id']);    
+  $row[] = get_quantity_by_order_id($result['ord_id']);    
+  $info[] = $row;
+}
+
+
+
+
+return $info; 
+}
+
+function rows_in_table($t_name)
+{
+
+ $sql  ="SELECT * from `$t_name`";
+ global $conn;
+ $result = mysqli_query($conn,$sql);
+ if (!$result) die($conn->error);
+ $results = array();
+ while ($row = mysqli_fetch_array($result)) 
+  $results[] = $row;
+return $results;
+}
+
+
+
+
+function get_id_from_str($str)
+{
+  $id=  explode(" ",$str);
+  return $id[0];
+}
+
+function get_products_by_ids($pro_id, $cat_id, $bra_id, $warranty_yr)
+{
+
+ if($pro_id == "All" && $cat_id == "All" && $bra_id == "All")
+  $query = "SELECT pro_id, product.name as p_name, product_category.name as c_name, product_brand.name as b_name, warranty_yr, sale_price, purchase_price from ((product left OUTER JOIN product_category on product.cat_id=product_category.cat_id) left OUTER JOIN product_brand ON product.bra_id=product_brand.bra_id)";
+
+
+if($pro_id == "All" && $cat_id == "All" && $bra_id != "All")
+  $query = "SELECT pro_id, product.name as p_name,product_category.name as c_name, product_brand.name as b_name, warranty_yr, sale_price, purchase_price from ((product left OUTER JOIN product_category on product.cat_id=product_category.cat_id) left OUTER JOIN product_brand ON product.bra_id=product_brand.bra_id) where product_brand.bra_id= '$bra_id'";
+
+
+if($pro_id == "All" && $cat_id != "All" && $bra_id == "All")
+  $query = "SELECT pro_id, product.name as p_name,product_category.name as c_name, product_brand.name as b_name, warranty_yr, sale_price, purchase_price from ((product left OUTER JOIN product_category on product.cat_id=product_category.cat_id) left OUTER JOIN product_brand ON product.bra_id=product_brand.bra_id) WHERE product_category.cat_id = '$cat_id'";
+
+if($pro_id == "All" && $cat_id != "All" && $bra_id != "All")
+  $query = "SELECT pro_id, product.name as p_name,product_category.name as c_name, product_brand.name as b_name, warranty_yr, sale_price, purchase_price from ((product left OUTER JOIN product_category on product.cat_id=product_category.cat_id) left OUTER JOIN product_brand ON product.bra_id=product_brand.bra_id) where product_category.cat_id = '$cat_id' and product_brand.bra_id='$bra_id";
+
+
+if($pro_id != "All")
+  $query = "SELECT pro_id, product.name as p_name,product_category.name as c_name, product_brand.name as b_name, warranty_yr, sale_price, purchase_price from ((product left OUTER JOIN product_category on product.cat_id=product_category.cat_id) left OUTER JOIN product_brand ON product.bra_id=product_brand.bra_id) WHERE pro_id='$pro_id'";
+
+global $conn;
+$result = mysqli_query($conn,$query);
+if (!$result) die($conn->error);
+$results = array();
+while ($row = mysqli_fetch_array($result)) 
+{
+  if($warranty_yr != 'Any')
+  {
+    if($warranty_yr ==$row['warranty_yr'])  
+      $results[] = $row;
+
+  }
+
+  else $results[] = $row;
+
+}
+return $results;
+
+}
+
+
+
+
+function get_products_by_purchase_id($pur_id)
+{
+  $query = "SELECT purchased_product.pro_id, name, purchase_price, quantity from product, purchased_product where purchased_product.pur_id='$pur_id' and purchased_product.pro_id=product.pro_id
+";
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+  $results = array();
+  while ($row = mysqli_fetch_array($result)) 
+    $results[] = $row;
+  return $results;
+
+
+}
+
+function get_purchase_date($pur_id)
+{
+  $query ="SELECT purchase_date from purchase where pur_id='$pur_id'";
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+  $row = mysqli_fetch_array($result); 
+  return $row[0];
+}
+
+
+function get_last_purchase_id()
+{
+  $query ="SELECT pur_id from purchase order by pur_id DESC LIMIT 1";
+  global $conn;
+  $result = mysqli_query($conn,$query);
+  if (!$result) die($conn->error);
+  $row = mysqli_fetch_array($result); 
+  return $row[0];
+}
 ?>
 
 

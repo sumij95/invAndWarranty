@@ -4,13 +4,12 @@
 <body>
 
 	<?php
-	$q = intval($_GET['q']);
+	$q = $_GET['q'];
 	$supplier_name = list_of_supplier_by_id($q);
-	echo '<h4><br>Supplier Company name: ';
+	echo '<h4 style="padding-top:20px">Supplier Company name: ';
 	
 	echo $supplier_name;
-	echo '</br></h4>';
-	
+	echo '</h4>';	
 	?>
 
 	<?php $products = list_of_ordered_products(($_GET['q']));?>
@@ -25,8 +24,6 @@
 					<th class="text-center" style="width: 10%;"> Unit Purchase <br> Price </th>
 				    <th class="text-center" style="width: 10%;"> Quantity </th>
 					<th class="text-center" style="width: 10%;"> Total Purchase <br> Price </th>
-
-
 				</tr>
 			</thead>
 			<tbody>

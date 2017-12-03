@@ -1,231 +1,135 @@
+<?php include_once('load.php'); ?>
+
+
+
+
 <?php
-include_once('load.php');
 include_once('layouts/header.php');
 include_once('layouts/nav.php'); 
 ?>
 
+<div class="col-md-10">
+	<div class="row">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<strong>
+					<span class="glyphicon glyphicon-th"></span>
+					<span >Reports</span>
+				</strong>
+			</div>
+			<div class="panel-body">
+				<div class="" style="align-self: center; padding: 0px;">
+					<form  method="post" action="generate_report.php">
+						<div class="form-group">
+							<div class="col-md-4">   
+								<select class="form-control" name="table_name">
+									<option></option>
+									<option>Sale</option>
+									<option>Sale_all_products</option>
+									<option>Purchase</option>
+									<option>Order</option>
+								</select>
+							</div>
 
-<?php
-if(isset($_POST['sales_report']))
-{
-	$from = $_POST['date_from'];
-	$to = $_POST['date_to'];
-	if($from > $to)
-	{
-		$temp=$from;
-		$from=$to;
-		$to=$temp;
-	}
-	
-	$sales = sales_report_from_to($from, $to);
-}
-
-if(isset($_POST['purchases_report']))
-{
-	$from = $_POST['date_from'];
-	$to = $_POST['date_to'];
-	if($from > $to)
-	{
-		$temp=$from;
-		$from=$to;
-		$to=$temp;
-	}
-	
-	$purchases = purchases_report_from_to($from, $to);
-}
-?>
-
-
-<script>
-	function unhide(clickedButton, divID) {
-		var item = document.getElementById(divID);
-		if (item) {
-			if(item.className=='hidden'){
-				item.className = 'unhidden' ;
-				clickedButton.value = 'Hide'
-			}else{
-				item.className = 'hidden';
-				clickedButton.value = 'Show'
-			}
-		}}
-
-	</script>
-
-
-
-
-
-
-	<div class="col-md-10">
-		<div class="row">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<strong>
-						<span class="glyphicon glyphicon-th"></span>
-						<span >Purchases</span>
-					</strong>
-					<div class="" style="align-self: center; padding: 0px;">
-						<form  method="post" action="reports.php">
 							From : 
 							<input type="date"  name="date_from" placeholder="From" required=""/>
 							TO : 	
-							<input type="date"  name="date_to" placeholder="To" required=""/>    
-							<button class="btn btn-primary" name="purchases_report" type="submit" >Purchases Report</button>
-						</form>
-					</div> 
-				</div>
-
-				<?php 
-				if(isset($purchases)):
-					if(!empty($purchases)):
-						?>
-					<div class="panel-body" id="sales_report_id">
-						<table class="table table-striped table-bordered table-condensed">
-							<thead>
-								<tr>
-									<th>Purchase ID</th>
-									<th>Purchase_date</th>
-									<th>Order ID</th>
-								</tr>
-							</thead>
-							<?php 
-							if(!empty($purchases)):
-								foreach ($purchases as  $pur): ?>
-							<tr>
-								<td><?php echo $pur['pur_id']; ?></td>
-
-								<td><?php echo $pur['purchase_date']; ?></td>
-								<td><?php echo $pur['ord_id']; ?></td>
-							</tr>
-						<?php endforeach; endif;?>
-						<tbody>
-
-						</tbody>
-					</table>
-				</div>
-				<?php 
-
-				endif;
-				echo "<h4><b>No data found in between this dates<b><h4>";
-				endif;
-				?>
+							<input type="date"  name="date_to" placeholder="To" required=""/> 
+						</div>
+						<button class="btn btn-primary" name="generate_report" type="submit" > Generate Report</button>
+					</form>
+				</div> 
 			</div>
-		</div>
-	</div>
-
-
-
-
-	<div class="col-md-10">
-		<div class="row">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<strong>
-						<span class="glyphicon glyphicon-th"></span>
-						<span >Sales</span>
-					</strong>
-					<div class="" style="align-self: center; padding: 0px;">
-						<form  method="post" action="reports.php">
-							From : 
-							<input type="date"  name="date_from" placeholder="From" required=""/>
-							TO : 	
-							<input type="date"  name="date_to" placeholder="To" required=""/>    
-							<button class="btn btn-primary" name="sales_report" type="submit" >Sales Report</button>
-						</form>
-					</div> 
-				</div>
-
-				<?php 
-				if(isset($sales)):
-					if(!empty($sales)):
-						?>
-					<div class="panel-body" id="sales_report_id">
-						<table class="table table-striped table-bordered table-condensed">
-							<thead>
-								<tr>
-									<th>Sale ID</th>
-									<th>Sale_date</th>
-									<th>Customer ID</th>
-								</tr>
-							</thead>
-							<?php 
-							if(!empty($sales)):
-								foreach ($sales as  $sale): ?>
-							<tr>
-								<td><?php echo $sale['sal_id']; ?></td>
-
-								<td><?php echo $sale['sale_date']; ?></td>
-								<td><?php echo $sale['cus_id']; ?></td>
-							</tr>
-						<?php endforeach; endif;?>
-						<tbody>
-
-						</tbody>
-					</table>
-				</div>
-				<?php 
-				endif;
-				echo "<h4><b>No data found in between this dates<b><h4>";
-				endif;
-
-				?>
-			</div>
-		</div>
-	</div>
-
-
-
-
-
-
-
-
-
-
-
-
-	<div class="col-md-10">
-		<!-- <div id="test" class="hidden">asfsdf</div> -->
-		<div class="row">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<strong>
-						<span class="glyphicon glyphicon-th"></span>
-						<span>Need to Buy Soon</span>
-					</strong>
-					<input type="button" onclick="unhide(this, 'test')" value="Show">
-				</div>
-				<div id="test" class="hidden">
-
-					<div class="panel-body">
-						<table class="table table-striped table-bordered table-condensed">
-							<thead>
-								<tr>
-									<th>Product ID</th>
-									<th>Name</th>
-									<th>Quantity in Stock</th>
-								</tr>
-							</thead>
-
-							<tbody>
-								<?php 
-								$products = list_of_lowest_quantity_Products();
-								foreach ($products as  $product): ?>
-								<tr>
-									<td><?php echo $product['pro_id']; ?></td>
-
-									<td><?php echo $product['name']; ?></td>
-									<td><?php echo (int)$product['quantity']; ?></td>
-								</tr>
-							<?php endforeach; ?>
-						</tbody>
-					</table>
-				</div>
-			</div>
-
 		</div>
 	</div>
 </div>
-<div class="col-md-12">
+
+<div class="col-md-10">
+	<div class="row">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<strong>
+					<span class="glyphicon glyphicon-th"></span>
+					<span >Stock Report</span>
+				</strong>
+			</div>
+			<div class="panel-body">
+				<div class="" style="align-self: center; padding: 0px;">
+					<form  method="post" action="generate_stock_report.php">
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-3">
+									Product Name
+									<select class="form-control" name="pro_id">
+										<option selected="selected">All</option>
+										<?php 
+										$rows = list_of_products_in_stock();
+										foreach ($rows as $row)
+										{
+											echo '<option >';
+											echo ($row['pro_id'].' -'.$row['name']);
+											echo '</option>';
+										}
+										?> 
+									</select>
+								</div>
+								<div class="col-md-3">
+									Product Category
+
+									<select class="form-control" name="product_category">
+										<option selected="selected">All</option>
+										<?php 
+										$rows = rows_in_table('product_category');
+
+										foreach ($rows as $row)
+										{
+											echo '<option >';
+											echo ($row['cat_id'].' -'.$row['name']);
+											echo '</option>';
+										}
+										?> 
+									</select>
+								</div>
+								<div class="col-md-3">
+									Product Brand
+									<select class="form-control" name="product_brand">
+										<option selected="selected">All</option>
+										<?php 
+										$rows = rows_in_table('product_brand');
+										foreach ($rows as $row)
+										{
+											echo '<option >';
+											echo ($row['bra_id'].' -'.$row['name']);
+											echo '</option>';
+										}
+										?> 
+									</select>
+								</div>
+							<div class="col-md-3">
+								Warranty Duration
+								<select class="form-control" name="warranty_yr">
+									<option selected="selected">Any</option>
+									<option >1</option>
+									<option >2</option>
+									<option >3</option>
+									<option >4</option>
+									<option >5</option>
+									<option >6</option>
+									<option >7</option>
+									<option >8</option>
+									<option >9</option>
+									<option >10</option>
+								</select>
+							</div>
+						</div>
+						<div style="padding-top: 5px">
+							<button class="btn btn-primary" name="stock_report" type="submit" > Generate Report</button>
+						</div>
+					</form>
+				</div> 
+			</div>
+		</div>
+	</div>
+</div>
+
 <?php include_once('layouts/footer.php'); ?>
-</div>

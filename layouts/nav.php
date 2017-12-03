@@ -75,7 +75,7 @@
 
           <a href="purchase.php">Purchase Products</a>
           <a href="sale.php">Sale Products</a>
-          <a href="transactions.php">Transaction</a>
+          <!-- <a href="transactions.php">Transaction</a> -->
 
 
         </div>

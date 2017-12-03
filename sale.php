@@ -40,31 +40,11 @@ else
 
 
 
-<?php include_once('layouts/header.php'); ?>
-<?php include_once('layouts/nav.php'); ?>
 <?php $customers = list_of_customers();?>
 
-<?php
-if(isset($_POST['sale']) && isset($_SESSION['cart']))
-{
-  $str = $_POST['cus_info'];
-  $cus_id=  explode(" ",$str);
-  $cus_id = $cus_id[0];
-  $_SESSION['cus_id'] = $cus_id;
+<?php include_once('layouts/header.php'); ?>
+<?php include_once('layouts/nav.php'); ?>
 
-  insert_into_sale_and_stock($cus_id,$_SESSION['cart']);
-  insert_into_warranty($_SESSION['cart']);
-  
-  require("sale_list".".php"); 
-  
-  unset($_SESSION['cart']); 
-  unset($_SESSION['pro_quantity']); 
-  unset($_SESSION['products']) ;
-  unset($_SESSION['cus_id']);
-}
-
-
-?>
 <div class="col-md-10">
   <div class="row">
 
@@ -79,7 +59,7 @@ if(isset($_POST['sale']) && isset($_SESSION['cart']))
       <div class="panel-body">
 
        <div class="col-md-12">
-        <form method="post" action="sale.php" class="clearfix">
+        <form method="post" action="sale_list.php" class="clearfix">
           <div class="form-group">
             <br>Customer<br>
             <select class="form-control" name="cus_info">

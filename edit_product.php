@@ -1,8 +1,6 @@
 <?php include_once('load.php'); ?>
 <?php $product = find_product_by_id((int)$_GET['id']);?>
 
-<?php include_once('layouts/header.php'); ?>
-<?php include_once('layouts/nav.php'); ?>
 
 <?php 
 if(!isset($_SESSION))session_start(); 
@@ -28,7 +26,10 @@ if(isset($_POST['product'])){
 
 }
 ?>
-<div class="col-md-8">
+<?php include_once('layouts/header.php'); ?>
+<?php include_once('layouts/nav.php'); ?>
+
+<div class="col-md-10">
   <div class="row">
     <div class="panel panel-default">
       <div class="panel-heading">
